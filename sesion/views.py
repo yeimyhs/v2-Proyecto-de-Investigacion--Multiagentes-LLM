@@ -77,3 +77,36 @@ class UserViewSet(ModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
     search_fields = [ 'email']
     filterset_fields = [ 'email']
+
+
+
+
+
+
+
+from rest_framework import viewsets
+from .models import Session, Topic, TopicsRequirement, LearningTechnique, RecommendedTechniques
+from .serializers import SessionSerializer, TopicSerializer, TopicsRequirementSerializer, LearningTechniqueSerializer, RecommendedTechniquesSerializer
+
+class SessionViewSet(viewsets.ModelViewSet):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, DjangoFilterBackend]
+    search_fields = [ ]
+    filterset_fields = [ 'user_id']
+
+class TopicViewSet(viewsets.ModelViewSet):
+    queryset = Topic.objects.all()
+    serializer_class = TopicSerializer
+
+class TopicsRequirementViewSet(viewsets.ModelViewSet):
+    queryset = TopicsRequirement.objects.all()
+    serializer_class = TopicsRequirementSerializer
+
+class LearningTechniqueViewSet(viewsets.ModelViewSet):
+    queryset = LearningTechnique.objects.all()
+    serializer_class = LearningTechniqueSerializer
+
+class RecommendedTechniquesViewSet(viewsets.ModelViewSet):
+    queryset = RecommendedTechniques.objects.all()
+    serializer_class = RecommendedTechniquesSerializer

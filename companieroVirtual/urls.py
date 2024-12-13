@@ -10,6 +10,7 @@ from .views import *
 from companieroVirtual import views
 from companieroVirtual import viewsTemplates
 
+from rest_framework.routers import DefaultRouter
 router = SimpleRouter()
 #router.register(r'user', views.UserViewSet)
 
@@ -21,6 +22,12 @@ urlpatterns = [
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+router = DefaultRouter()
+router.register(r'messages', MessageViewSet)
+router.register(r'conversations', ConversationViewSet)
+router.register(r'knowledge-topics', KnowledgeTopicLearnedViewSet)
+router.register(r'sub-knowledge', SubKnowledgeViewSet)
+router.register(r'generated-by', GeneratedByViewSet)
 
 urlpatterns += router.urls
 

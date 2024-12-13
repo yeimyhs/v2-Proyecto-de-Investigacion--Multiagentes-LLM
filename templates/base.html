@@ -18,13 +18,28 @@
 <body>
     <div class="container">
         <!-- Información del usuario -->
-        <div class="user-info">
-            <img src="{% if user.foto %}{{ user.foto.url }}{% else %}https://via.placeholder.com/80{% endif %}" 
-
-                 alt="Foto del Usuario" 
-                 style="border-radius: 50%; width: 100px; height: 100px; margin-bottom: 15px; border: 3px solid #81c784;">
-            <h3>{{ user.name|default:"Invitado" }}</h3>
-            <p>{{ user.email|default:"Bienvenido, Inicie sesion para una mejor experiencia. " }}</p>
+        <div class="sidebar">
+            <!-- Primera sección dinámica -->
+            <div class="sidebar-section">
+                <img src="{% if user.foto %}{{ user.foto.url }}{% else %}https://via.placeholder.com/80{% endif %}" 
+    
+                     alt="Foto del Usuario" 
+                     style="border-radius: 50%; width: 100px; height: 100px; margin-bottom: 15px; border: 3px solid #81c784;">
+                <h3>{{ user.name|default:"Invitado" }}</h3>
+                <p>{{ user.email|default:"Bienvenido, Inicie sesion para una mejor experiencia. " }}</p>
+            </div>
+            
+            <!-- Segunda sección dinámica -->
+            <div class="sidebar-section scrollable">
+                <ul id="session-list">
+                    <!-- Aquí se insertarán los nombres obtenidos desde el endpoint -->
+                </ul>
+            </div>
+            
+            <!-- Tercera sección fija -->
+            <div class="sidebar-section">
+                <p>Contenido fijo</p>
+            </div>
         </div>
 
         <!-- Contenido dinámico -->
@@ -33,4 +48,64 @@
         </div>
     </div>
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const userId = "{{ user.id }}"; // ID del usuario actual pasado desde el backend
+        const endpoint = `http://127.0.0.1:8000/sesion/sessions/?user_id=${userId}`;
+        const sessionList = document.getElementById('session-list');
+
+        // Realizar la solicitud al endpoint
+        fetch(endpoint)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al obtener las sesiones.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Asegurarse de que el resultado sea un arreglo
+                if (Array.isArray(data)) {
+                    data.forEach(session => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = session.nombre; // Atributo "nombre" del objeto
+                        sessionList.appendChild(listItem);
+                    });
+                } else {
+                    sessionList.innerHTML = '<li>No hay sesiones disponibles.</li>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                sessionList.innerHTML = '<li></li>';
+            });
+    });
+
+      document.addEventListener("DOMContentLoaded", function() {
+        // Obtener todos los botones de menú
+        const menuBtns = document.querySelectorAll('.menu-btn');
+        
+        // Añadir el evento de click a cada botón
+        menuBtns.forEach(function(btn) {
+            btn.addEventListener('click', function(event) {
+                // Prevenir que el clic se propague a otros elementos
+                event.stopPropagation();
+                
+                // Toggle para mostrar/ocultar el menú desplegable
+                const dropdown = this.nextElementSibling; // El desplegable que sigue al botón
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+        });
+        
+        // Cerrar todos los menús desplegables si se hace clic fuera
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.menu-btn')) {
+                const dropdowns = document.querySelectorAll('.menu-dropdown');
+                dropdowns.forEach(function(dropdown) {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
+    });
+</script>
+
 </html>

@@ -12,6 +12,12 @@ from sesion import viewsTemplates
 
 router = SimpleRouter()
 router.register(r'user', views.UserViewSet)
+router.register(r'sessions', views.SessionViewSet)
+router.register(r'topics', views.TopicViewSet)
+router.register(r'topics-requirement', views.TopicsRequirementViewSet)
+router.register(r'learning-technique', views.LearningTechniqueViewSet)
+router.register(r'recommended-techniques', views.RecommendedTechniquesViewSet)
+
 
 
 urlpatterns = [
@@ -28,5 +34,6 @@ urlpatterns = [
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 
 urlpatterns += router.urls

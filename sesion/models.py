@@ -49,7 +49,7 @@ class Session(models.Model):
     idsession = models.AutoField(primary_key=True)
     duration = models.DurationField()
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-
+    nombre = models.CharField(max_length=255 ,default= f"Sesion {id}")
     def __str__(self):
         return f"Session {self.idsession}"
 
@@ -66,6 +66,7 @@ class Topic(models.Model):
 class TopicsRequirement(models.Model):
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
+    state = models.SmallIntegerField(default=0)
 
     class Meta:
         unique_together = ("session", "topic")
@@ -85,7 +86,7 @@ class LearningTechnique(models.Model):
 class RecommendedTechniques(models.Model):
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
     technique = models.ForeignKey(LearningTechnique, on_delete=models.CASCADE)
-    user_agent = models.CharField(max_length=25, blank=True, null=True)
+    user_agent = models.CharField(max_length=25, blank=True, null=True, default="agente")
 
     class Meta:
         unique_together = ("session", "technique")

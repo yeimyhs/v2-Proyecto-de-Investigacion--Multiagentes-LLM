@@ -14,9 +14,40 @@ os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 # Inicializar el modelo Gemini
 model = Gemini(model="models/gemini-1.5-flash", api_key=GOOGLE_API_KEY)
 
+#--------------------------------------------------------------------------------------------------------
+
+from rest_framework import viewsets
+from .models import Message, Conversation, KnowledgeTopicLearned, SubKnowledge, GeneratedBy
+from .serializers import MessageSerializer, ConversationSerializer, KnowledgeTopicLearnedSerializer, SubKnowledgeSerializer, GeneratedBySerializer
+from sesion.models import Session
+from sesion.serializers import SessionSerializer
+
+
+class MessageViewSet(viewsets.ModelViewSet):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+
+class ConversationViewSet(viewsets.ModelViewSet):
+    queryset = Conversation.objects.all()
+    serializer_class = ConversationSerializer
+
+class KnowledgeTopicLearnedViewSet(viewsets.ModelViewSet):
+    queryset = KnowledgeTopicLearned.objects.all()
+    serializer_class = KnowledgeTopicLearnedSerializer
+
+class SubKnowledgeViewSet(viewsets.ModelViewSet):
+    queryset = SubKnowledge.objects.all()
+    serializer_class = SubKnowledgeSerializer
+
+class GeneratedByViewSet(viewsets.ModelViewSet):
+    queryset = GeneratedBy.objects.all()
+    serializer_class = GeneratedBySerializer
 
 
 
+#--------------------------------------------------------------------------------------------------------
+#AGENTE
+#--------------------------------------------------------------------------------------------------------
 
 
 import os
@@ -117,14 +148,43 @@ def agente_3(mensaje_estudiante,lista_requerimientos, sugerencia_proxima_respues
     #print(response.text)
     return response
 
+def get_session_requerimientos(session_id):
+    try:
+        # Obtén la sesión por su ID
+        session = Session.objects.get(idsession=session_id)
+        
+        # Usa el serializer de Session para obtener todos los detalles, incluidas las listas de requerimientos
+        session_serializer = SessionSerializer(session)
+        
+        # Obtén los requerimientos desde la serialización
+        requerimientos = session_serializer.data.get('lista_requerimientos', [])
+        
+        # Prepara la estructura de la respuesta para los requerimientos
+        lista_requerimientos = {
+            "descripcion": "Es una lista de temas que se deben realizar durante la sesión...",
+            "lista": []
+        }
+
+        # Llena la lista con el nombre del tema y el estado basado en 'state'
+        for requerimiento in requerimientos:
+            topic_name = requerimiento['topic_d']['name']  # Accede al nombre del tema
+            estado = True if requerimiento['state'] == 1 else False  # Verifica el estado
+            lista_requerimientos["lista"].append({topic_name: estado})
+
+        return lista_requerimientos
+    
+    except Session.DoesNotExist:
+        return {"error": "Session not found"}, 404
 
 # Bucle continuo
 def ejecutar_programa2():
-    lista_requerimientos = {
-        "descripcion": "Es una lista de temas que se deben realizar durante la sesión...",
-        "lista": [{"calapata": True}, {"calacunca": False}, {"huishi": False}, {"lomiar": False}]
-    }
+    #-- session lista_requerimientos
+    session = Session.objects.all(id = 1)
+    lista_requerimientos = get_session_requerimientos(session)
 
+    
+    print(lista_requerimientos
+          )
     nivel_identificado_usuario = {
         "nivel": "básico",
         "descripción": "español nativo"
@@ -140,7 +200,7 @@ def ejecutar_programa2():
         "dificultades": ["no sabe formular muchas frases pero entiende significados"],
         "tecnicas_favorables": ["comparación semántica"]
     }
-
+    #-- session tecnicas_recomendadas_a_usar_sesion
     tecnicas_recomendadas_a_usar_sesion = {
         "lista_de_tecnicas": ["ejemplos", "analogías"]
     }
@@ -189,12 +249,8 @@ def ejecutar_programa2():
         if mensaje_nuevo:  # Si el usuario ingresa un nuevo mensaje, actualiza
             mensaje_estudiante = mensaje_nuevo
 
-        time.sleep(2)  # Espera 2 segundos antes de la próxima iteración
 
-
-
-
-
+#--------------------------------------------------------------------------------------------------------
 
 
 
