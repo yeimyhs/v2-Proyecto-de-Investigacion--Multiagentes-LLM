@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 
-
 {% block content %}
     <div class="auth-container">
         <h2>Login o Registro</h2>
@@ -9,6 +8,9 @@
         <!-- Botones para elegir entre Login o Registro -->
         <a href="javascript:void(0);" class="auth-button" id="login-button">Iniciar sesión</a>
         <a href="javascript:void(0);" class="auth-button" id="register-button">Registrarse</a>
+
+        <!-- Sombra que cubre toda la pantalla cuando la tarjeta está activa -->
+        <div class="overlay" id="overlay"></div>
 
         <!-- Tarjeta de Login -->
         <div class="card" id="login-card">
@@ -64,16 +66,83 @@
     <script>
         // Mostrar u ocultar tarjetas dependiendo de la selección
         document.getElementById('login-button').addEventListener('click', () => {
-            document.getElementById('login-card').style.display = 'block';
-            document.getElementById('register-card').style.display = 'none';
+            document.getElementById('login-card').classList.add('show');
+            document.getElementById('register-card').classList.remove('show');
+            document.getElementById('overlay').classList.add('show');
         });
 
         document.getElementById('register-button').addEventListener('click', () => {
-            document.getElementById('login-card').style.display = 'none';
-            document.getElementById('register-card').style.display = 'block';
+            document.getElementById('login-card').classList.remove('show');
+            document.getElementById('register-card').classList.add('show');
+            document.getElementById('overlay').classList.add('show');
+        });
+
+        // Cerrar el formulario y la sombra si el usuario hace click en la sombra
+        document.getElementById('overlay').addEventListener('click', () => {
+            document.getElementById('login-card').classList.remove('show');
+            document.getElementById('register-card').classList.remove('show');
+            document.getElementById('overlay').classList.remove('show');
         });
 
         // Inicialmente ocultamos la tarjeta de registro
-        document.getElementById('register-card').style.display = 'none';
+        document.getElementById('register-card').classList.remove('show');
+
+
+            // Capturar el evento de submit para el login
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('/sesion/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.ok) {
+                    window.location.href = '/companieroVirtual/';
+                } else {
+                    const data = await response.json();
+                    alert('Error: ' + (data.error || 'Credenciales incorrectas.'));
+                }
+            } catch (error) {
+                alert('Error al intentar iniciar sesión: ' + error.message);
+            }
+        });
+
+        // Capturar el evento de submit para el registro
+        const registerForm = document.getElementById('register-form');
+        registerForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(registerForm);
+
+            try {
+                const response = await fetch('/sesion/register/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                    body: formData,
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Usuario registrado exitosamente. Ahora puedes iniciar sesión.');
+                    window.location.href = '/sesion/login_register_view/';
+                } else {
+                    alert('Error: ' + (data.error || 'No se pudo registrar al usuario.'));
+                }
+            } catch (error) {
+                alert('Error al intentar registrar: ' + error.message);
+            }
+        });
     </script>
 {% endblock %}

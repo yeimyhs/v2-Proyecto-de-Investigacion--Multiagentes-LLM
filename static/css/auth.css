@@ -1,9 +1,15 @@
-/* Estilos del contenedor */
+/* Contenedor principal para la autenticación */
 .auth-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
     text-align: center;
+    position: relative;
+    height: 100vh; /* Asegura que el contenedor ocupe toda la altura de la pantalla */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra los elementos dentro del contenedor */
+    align-items: center;
 }
 
 /* Estilo de los botones */
@@ -27,14 +33,52 @@
     color: #ffffff;
 }
 
+/* Contenedor para los botones */
+.auth-container .button-container {
+    width: 100%;
+    margin-bottom: 20px; /* Espacio entre los botones y las tarjetas */
+}
+
 /* Estilo para las tarjetas (divs que contienen los formularios) */
 .auth-container .card {
     display: none;
     background-color: #ffffff;
-    padding: 20px;
+    padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Sombra más intensa */
+    width: auto; /* El ancho se ajusta al contenido */
+    max-width: 600px; /* Aseguramos que no se desborde de la pantalla */
+    min-width: 300px; /* Un ancho mínimo para que se vea bien en pantallas pequeñas */
+    margin: 0 auto;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    z-index: 1000; /* Para que quede por encima de otros elementos */
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.auth-container .card.show {
+    display: block;
+    opacity: 1;
+}
+
+/* Efecto de sombreado en toda la pantalla cuando la tarjeta está activa */
+.auth-container .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro con opacidad */
+    z-index: 999; /* Para que quede detrás de la tarjeta */
+}
+
+.auth-container .overlay.show {
+    display: block;
 }
 
 /* Estilo del formulario */
