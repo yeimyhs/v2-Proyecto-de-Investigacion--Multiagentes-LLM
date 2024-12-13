@@ -1,5 +1,43 @@
+/* Estilos del contenedor */
+.auth-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+}
 
-/* FORM */
+/* Estilo de los botones */
+.auth-container .auth-button {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    color: #81c784; /* Verde claro */
+    border: 2px solid #81c784;
+    border-radius: 8px;
+    background-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.auth-container .auth-button:hover {
+    background-color: #81c784;
+    color: #ffffff;
+}
+
+/* Estilo para las tarjetas (divs que contienen los formularios) */
+.auth-container .card {
+    display: none;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+/* Estilo del formulario */
 .auth-container form {
     margin-bottom: 20px;
     text-align: left;
@@ -28,19 +66,6 @@
     border-color: #81c784; /* Verde claro */
     outline: none;
     box-shadow: 0 0 4px rgba(129, 199, 132, 0.5);
-}
-
-.auth-container input[type="file"] {
-    padding: 5px;
-    border: none;
-    margin-bottom: 15px;
-    background-color: #f9f9f9;
-    font-size: 14px;
-}
-
-.auth-container input[type="file"]:focus {
-    outline: none;
-    border: 1px solid #81c784; /* Verde claro */
 }
 
 .auth-container button {
