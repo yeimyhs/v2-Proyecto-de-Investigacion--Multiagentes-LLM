@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block extra_styles %}
+    <!-- Archivo CSS específico para esta página -->
+     
+    
+{% endblock %}
+
+{% block content %}
+    <div class="auth-container">
+        <h2>Login o Registro</h2>
+        
+        <!-- Formulario de Login -->
+        <form id="login-form" method="POST">
+            {% csrf_token %}
+            <h3>Iniciar sesión</h3>
+            <label for="login-username">Correo Electrónico:</label>
+            <input type="email" id="login-username" name="username" required>
+            <label for="login-password">Contraseña:</label>
+            <input type="password" id="login-password" name="password" required>
+            <button type="submit">Iniciar sesión</button>
+        </form>
+
+        <hr>
+                    <!-- Formulario de Registro -->
+        <form id="register-form" method="POST">
+            {% csrf_token %}
+            <h3>Registrarse</h3>
+    
+            <label for="register-email">Correo Electrónico:</label>
+            <input type="email" id="register-email" name="email" required>
+            
+            <label for="register-password">Contraseña:</label>
+            <input type="password" id="register-password" name="password" required>
+            
+            <label for="register-name">Nombre:</label>
+            <input type="text" id="register-name" name="name" required>
+            
+            <label for="register-age">Edad:</label>
+            <input type="number" id="register-age" name="age">
+            
+            <label for="register-grade">Grado:</label>
+            <input type="text" id="register-grade" name="grade">
+            
+            <label for="register-country">País:</label>
+            <input type="text" id="register-country" name="country">
+            
+            <label for="register-department">Departamento:</label>
+            <input type="text" id="register-department" name="department">
+            
+            <label for="register-city">Ciudad:</label>
+            <input type="text" id="register-city" name="city">
+            
+            <label for="register-photo">Foto:</label>
+            <input type="file" id="register-photo" name="foto">
+            
+            <button type="submit">Registrarse</button>
+        </form>
+    </div>
+
+    <script>
+        // Capturar el evento de submit para el login
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('/sesion/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (response.ok) {
+                    window.location.href = '/companieroVirtual/'; // Redirige si el login es exitoso
+                } else {
+                    const data = await response.json();
+                    alert('Error: ' + (data.error || 'Credenciales incorrectas.'));
+                }
+            } catch (error) {
+                alert('Error al intentar iniciar sesión: ' + error.message);
+            }
+        });
+
+        // Capturar el evento de submit para el registro
+        const registerForm = document.getElementById('register-form');
+        registerForm.addEventListener('submit', async (event) => {
+            event.preventDefault();  // Prevenir la acción por defecto del formulario
+
+            const formData = new FormData(registerForm);
+
+            const response = await fetch('/sesion/register/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                },
+                body: formData,  // Enviamos los datos como FormData
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('Usuario registrado exitosamente. Ahora puedes iniciar sesión.');
+                // Opcional: Redirigir a la página de login después de registrarse
+                window.location.href = '/sesion/login_register_view/';
+            } else {
+                alert('Error: ' + (data.error || 'No se pudo registrar al usuario.'));
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat con Gemini{% endblock %}
+
+{% block extra_css %}
+    <!-- Archivo CSS específico para esta página -->
+     
+{% endblock %}
+
+{% block content %}
+<div class="chat-box" id="chat-box" style="flex-grow: 1; background-color: #c8e6c9; border-radius: 15px; padding: 15px; overflow-y: auto; box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);">
+    <!-- Aquí irá la conversación -->
+</div>
+<div class="input-section" style="display: flex; margin-top: 15px;">
+    <input type="text" id="user-input" placeholder="Escribe tu mensaje aquí" style="flex-grow: 1; padding: 10px; border: 2px solid #81c784; border-radius: 10px; outline: none;">
+    <button onclick="sendMessage()" style="margin-left: 10px; padding: 10px 20px; background-color: #66bb6a; border: none; border-radius: 10px; color: white; cursor: pointer; transition: background-color 0.3s ease;">Enviar</button>
+</div>
+<script>
+    const chatEndpoint = "{% url 'companieroVirtual:chat' %}";
+    const protocol = "{{ request.scheme }}";
+    const domain = "{{ request.get_host }}";
+    const fullUrl = `${protocol}://${domain}${chatEndpoint}`;
+
+    function sendMessage() {
+        const message = document.getElementById("user-input").value;
+        const chatBox = document.getElementById("chat-box");
+
+        if (!message.trim()) return;
+
+        // Agrega el mensaje del usuario al chat
+        chatBox.innerHTML += `<p><strong>Usuario:</strong> ${message}</p>`;
+        document.getElementById("user-input").value = "";
+
+        // Muestra el indicador de "escribiendo"
+        const typingIndicator = document.createElement("div");
+        typingIndicator.className = "typing-indicator";
+        typingIndicator.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+        chatBox.appendChild(typingIndicator);
+
+        // Simula la respuesta con un retraso
+        setTimeout(() => {
+            fetch(fullUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatBox.removeChild(typingIndicator); // Elimina el indicador de "escribiendo"
+                if (data.response) {
+                    chatBox.innerHTML += `<p><strong>Gemini:</strong> ${data.response}</p>`;
+                } else {
+                    chatBox.innerHTML += `<p><strong>Error:</strong> ${data.error}</p>`;
+                }
+            })
+            .catch(error => {
+                chatBox.removeChild(typingIndicator); // Elimina el indicador de "escribiendo"
+                chatBox.innerHTML += `<p><strong>Error:</strong> ${error}</p>`;
+            });
+        },); // Retraso aleatorio entre 1 y 2 segundos
+    }
+</script>
+{% endblock %}

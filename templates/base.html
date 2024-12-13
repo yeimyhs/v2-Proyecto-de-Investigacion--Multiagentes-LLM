@@ -1,0 +1,36 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Chat con Gemini{% endblock %}</title>
+    {% load static %}
+    <!-- Estilos globales -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'css/chat.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <!-- Bloque para estilos específicos de cada página -->
+    {% block extra_styles %}{% endblock %}
+    
+</head>
+<body>
+    <div class="container">
+        <!-- Información del usuario -->
+        <div class="user-info">
+            <img src="{% if user.foto %}{{ user.foto.url }}{% else %}https://via.placeholder.com/80{% endif %}" 
+
+                 alt="Foto del Usuario" 
+                 style="border-radius: 50%; width: 100px; height: 100px; margin-bottom: 15px; border: 3px solid #81c784;">
+            <h3>{{ user.name|default:"Invitado" }}</h3>
+            <p>{{ user.email|default:"Bienvenido, Inicie sesion para una mejor experiencia. " }}</p>
+        </div>
+
+        <!-- Contenido dinámico -->
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

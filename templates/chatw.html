@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat con Gemini</title>
+</head>
+<body>
+    <h1>Chat en tiempo real con Gemini</h1>
+    <div id="chat-box" style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto;"></div>
+    <input type="text" id="user-input" placeholder="Escribe tu mensaje">
+    <button onclick="sendMessage()">Enviar</button>
+
+    <script>
+        const chatBox = document.getElementById("chat-box");
+        const userInput = document.getElementById("user-input");
+
+        const socket = new WebSocket("ws://" + window.location.host + "/ws/chat/");
+
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const message = data.message;
+
+            chatBox.innerHTML += `<p><strong>Gemini:</strong> ${message}</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        socket.onclose = function(e) {
+            console.error("Chat cerrado.");
+        };
+
+        function sendMessage() {
+            const message = userInput.value;
+            chatBox.innerHTML += `<p><strong>Tú:</strong> ${message}</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            socket.send(JSON.stringify({ message }));
+            userInput.value = "";
+        }
+    </script>
+</body>
+</html>
