@@ -93,3 +93,95 @@
             justify-content: center;
             align-items: center;
         }
+
+
+        #message-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            font-size: 14px;
+            display: none;
+        }
+        
+        #message-container.hidden {
+            display: none;
+        }
+        
+        #message-container.show {
+            display: block;
+            animation: fade-in-out 3s;
+        }
+        
+        @keyframes fade-in-out {
+            0% { opacity: 0; transform: translateY(20px); }
+            10%, 90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+        
+
+
+        /* Estilos para los mensajes */
+        #message-container {
+            display: none; /* Inicialmente está oculto */
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 5px 10px; /* Menos espacio para un mensaje más pequeño */
+            font-size: 14px; /* Tamaño de fuente más pequeño */
+            line-height: 1.2; /* Controla el espacio entre las líneas de texto */
+            max-width: 300px; /* Limita el ancho para que no se expanda demasiado */
+            border-radius: 8px;
+            text-align: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+.message {
+    display: block;
+}
+/* Estilo para el mensaje de éxito */
+.message.success {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Estilo para el mensaje de error */
+.message.error {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Para mostrar el mensaje */
+#message-container:not(.hidden) {
+    display: block;
+    opacity: 1;
+}
+/* Para mostrar el mensaje */
+#message-container:not(.hidden) {
+    display: block;
+    opacity: 1;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+

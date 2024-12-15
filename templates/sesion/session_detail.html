@@ -1,4 +1,3 @@
-<!-- session_detail.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,156 +5,279 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Chat con Gemini{% endblock %}</title>
     {% load static %}
-    <!-- Estilos globales -->
     <link rel="stylesheet" href="{% static 'css/sesionconfbase.css' %}">
     {% block extra_styles %}{% endblock %}
-    
 </head>
 <body>
 <div class="session-container">
     <h2>Detalles de la Sesión: {{ session.nombre }}</h2>
-
     <p><strong>Duración de la Sesion:</strong> {{ session.duration }}</p>
 
     <h3>Temas Requerimiento de la Sesion:</h3>
     <p>Es importante indicar los temas que quiere que se tengan en cuenta durante la sesion.</p>
-    <ul>
+    <ul id="topics-list">
         {% for requerimiento in session.lista_requerimientos %}
             <li>
                 <span>{{ requerimiento.topic_d.name }}</span>
+                <span class="hidden-state"> - {{ requerimiento.state }}</span>
+                <button class="delete-btn" data-id="{{ requerimiento.id }}">-</button>
                 <span class="hidden-state"> - {{ requerimiento.state }}</span>
             </li>
         {% empty %}
             <p class="no-items">No hay requerimientos para esta sesión.</p>
         {% endfor %}
     </ul>
-    <button class="circle-btn" id="add-topic-btn">+</button>
-
+    <button class="circle-btn" id="add-topic-btn">+ Tema</button>
 
     <h3>Técnicas de aprendizaje: </h3>
     <p>Técnicas de aprendizaje a desarrollar durante la sesion.</p>
-    <ul>
+    <ul id="techniques-list">
         {% for tecnica in session.tecnicas_recomendadas_a_usar_sesion %}
-            <li>{{ tecnica.technique_d.name }}</li>
+            <li>{{ tecnica.technique_d.name }}
+                <span>{{ tecnica.technique_d.name }}</span>
+                <button class="delete-btn" data-id="{{ tecnica.id }}">-</button>
+            
+            </li>   
+
+
         {% empty %}
             <p class="no-items">No hay técnicas recomendadas para esta sesión.</p>
         {% endfor %}
     </ul>
-    <button class="circle-btn" id="add-technique-btn">+</button>
+    <button class="circle-btn" id="add-technique-btn">+ Técnica</button>
 
-
-
-
-
-
-
-
-    <!-- Overlay para las Tarjetillas -->
+    <!-- Overlay para los formularios -->
     <div id="overlay" class="overlay">
+        <!-- Formulario para temas -->
         <div class="card hidden" id="topic-card">
             <h4>Agregar Tema</h4>
             <form id="topic-form">
                 <label for="topic-name">Tema:</label>
-                <input type="text" id="topic-name" name="topic_name" required>
-                <button type="submit">Agregar</button>
-                <button type="button" id="close-topic-card">Cerrar</button>
+                <input type="text" id="topic-name" name="topic-name" required>
+                <button type="submit">Guardar</button>
+                <button type="button" id="close-topic-modal">Cancelar</button>
             </form>
         </div>
+
+        <!-- Formulario para técnicas -->
         <div class="card hidden" id="technique-card">
             <h4>Agregar Técnica</h4>
             <form id="technique-form">
                 <label for="technique-name">Técnica:</label>
-                <input type="text" id="technique-name" name="technique_name" required>
-                <button type="submit">Agregar</button>
-                <button type="button" id="close-technique-card">Cerrar</button>
+                <input type="text" id="technique-name" name="technique-name" required>
+                <button type="submit">Guardar</button>
+                <button type="button" id="close-technique-modal">Cancelar</button>
             </form>
         </div>
     </div>
+
+    <!-- Contenedor de mensajes -->
+    <div id="message-container" class="hidden"></div>
 </div>
+
 <!-- Scripts -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const overlay = document.getElementById("overlay");
+        const sessionId = "{{ session.idsession }}";
 
-        // Botones y Tarjetillas
-        const addTopicBtn = document.getElementById("add-topic-btn");
-        const addTechniqueBtn = document.getElementById("add-technique-btn");
+        // Elementos del DOM
+        const overlay = document.getElementById("overlay");
+        const messageContainer = document.getElementById("message-container");
+
         const topicCard = document.getElementById("topic-card");
         const techniqueCard = document.getElementById("technique-card");
 
-        const closeTopicCard = document.getElementById("close-topic-card");
-        const closeTechniqueCard = document.getElementById("close-technique-card");
+        const addTopicBtn = document.getElementById("add-topic-btn");
+        const addTechniqueBtn = document.getElementById("add-technique-btn");
 
-        // Abrir y cerrar tarjetillas
+        const closeTopicModal = document.getElementById("close-topic-modal");
+        const closeTechniqueModal = document.getElementById("close-technique-modal");
+
+        const topicForm = document.getElementById("topic-form");
+        const techniqueForm = document.getElementById("technique-form");
+
+        // Función para mostrar mensajes
+        const showMessage = (message, success = true) => {
+            messageContainer.textContent = message;
+            messageContainer.className = success ? "message success" : "message error";
+            messageContainer.classList.remove("hidden");
+
+            setTimeout(() => {
+                messageContainer.classList.add("hidden");
+            }, 3000);
+        };
+
+        // Función para cerrar el modal y recargar la página
+        const closeModalAndReload = () => {
+            overlay.style.display = "none";
+            topicCard.classList.add("hidden");
+            techniqueCard.classList.add("hidden");
+            location.reload();
+        };
+
+        // Mostrar formularios
         addTopicBtn.addEventListener("click", () => {
             overlay.style.display = "flex";
             topicCard.classList.remove("hidden");
         });
+
         addTechniqueBtn.addEventListener("click", () => {
             overlay.style.display = "flex";
             techniqueCard.classList.remove("hidden");
         });
-        closeTopicCard.addEventListener("click", () => {
-            overlay.style.display = "none";
-            topicCard.classList.add("hidden");
-        });
-        closeTechniqueCard.addEventListener("click", () => {
-            overlay.style.display = "none";
-            techniqueCard.classList.add("hidden");
-        });
 
-        // Formularios dinámicos
-        const topicForm = document.getElementById("topic-form");
-        const techniqueForm = document.getElementById("technique-form");
-        const topicsList = document.getElementById("topics-list");
-        const techniquesList = document.getElementById("techniques-list");
+        // Cerrar formularios
+        closeTopicModal.addEventListener("click", closeModalAndReload);
+        closeTechniqueModal.addEventListener("click", closeModalAndReload);
 
+        // Enviar nuevo tema
         topicForm.addEventListener("submit", (event) => {
             event.preventDefault();
             const topicName = document.getElementById("topic-name").value;
 
-            // Hacer POST al servidor
-            fetch('/topics/api/', {
+            fetch('/sesion/topics-requirement/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ session: session.id, topic: topicName })
+                body: JSON.stringify({ session: sessionId, topic: topicName })
             })
-            .then(response => response.json())
-            .then(data => {
-                // Agregar a la lista si es exitoso
-                const li = document.createElement("li");
-                li.textContent = topicName;
-                topicsList.appendChild(li);
-
-                overlay.style.display = "none";
-                topicCard.classList.add("hidden");
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al agregar tema.");
+                }
+                return response.json();
             })
-            .catch(error => console.error("Error al agregar tema:", error));
+            .then(() => {
+                showMessage("¡Tema agregado exitosamente!");
+                closeModalAndReload();
+            })
+            .catch(() => showMessage("Error al agregar tema.", false));
         });
 
+        // Enviar nueva técnica
         techniqueForm.addEventListener("submit", (event) => {
             event.preventDefault();
             const techniqueName = document.getElementById("technique-name").value;
 
-            // Hacer POST al servidor
-            fetch('/techniques/api/', {
+            fetch('/sesion/recommended-techniques/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ session: session.id , technique: techniqueName })
+                body: JSON.stringify({ session: sessionId, technique: techniqueName })
             })
-            .then(response => response.json())
-            .then(data => {
-                // Agregar a la lista si es exitoso
-                const li = document.createElement("li");
-                li.textContent = techniqueName;
-                techniquesList.appendChild(li);
-
-                overlay.style.display = "none";
-                techniqueCard.classList.add("hidden");
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al agregar técnica.");
+                }
+                return response.json();
             })
-            .catch(error => console.error("Error al agregar técnica:", error));
+            .then(() => {
+                showMessage("¡Técnica agregada exitosamente!");
+                closeModalAndReload();
+            })
+            .catch(() => showMessage("Error al agregar técnica.", false));
         });
     });
+    document.addEventListener("DOMContentLoaded", () => {
+        const sessionId = "{{ session.idsession }}";
+    
+        // Función para eliminar un tema
+        const deleteTopic = (id) => {
+            fetch(`/sesion/topics-requirement/${id}/`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al eliminar el tema.");
+                }
+                // Actualizar la lista después de eliminar
+                showMessage("¡Tema eliminado exitosamente!");
+                location.reload();  // Recargar la página para reflejar los cambios
+            })
+            .catch(() => showMessage("Error al eliminar el tema.", false));
+        };
+    
+        // Evento de clic en el botón de eliminación
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                const topicId = event.target.getAttribute('data-id');
+                deleteTopic(topicId);
+            });
+        });
+    });
+
+
+
+
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const sessionId = "{{ session.idsession }}";
+
+        // Función para mostrar mensajes
+        const showMessage = (message, success = true) => {
+            const messageContainer = document.getElementById("message-container");
+            messageContainer.textContent = message;
+            messageContainer.className = success ? "message success" : "message error";
+            messageContainer.classList.remove("hidden");
+
+            setTimeout(() => {
+                messageContainer.classList.add("hidden");
+            }, 3000);
+        };
+
+        // Función para eliminar un tema
+        const deleteTopic = (id) => {
+            fetch(`/sesion/topics-requirement/${id}/`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al eliminar el tema.");
+                }
+                showMessage("¡Tema eliminado exitosamente!");
+                location.reload(); // Recargar la página
+            })
+            .catch(() => showMessage("Error al eliminar el tema.", false));
+        };
+
+        // Función para eliminar una técnica
+        
+    // Función para eliminar una técnica
+    const deleteTechnique = (id) => {
+        fetch(`/sesion/recommended-techniques/${id}/`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al eliminar la técnica.");
+                }
+                showMessage("¡Técnica eliminada exitosamente!");
+                location.reload(); // Recargar la página para reflejar los cambios
+            })
+            .catch(() => showMessage("Error al eliminar la técnica.", false));
+    };
+
+        // Asociar eventos de clic a los botones de eliminación de temas
+        const deleteTopicButtons = document.querySelectorAll('#topics-list .delete-btn');
+        deleteTopicButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                const topicId = event.target.getAttribute('data-id');
+                deleteTopic(topicId);
+            });
+        });
+
+        // Asociar eventos de clic a los botones de eliminación de técnicas
+        const deleteTechniqueButtons = document.querySelectorAll('#techniques-list .delete-btn');
+    deleteTechniqueButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            const techniqueId = event.target.getAttribute('data-id');
+            deleteTechnique(techniqueId);
+        });
+    });
+});
 </script>
 </body>
 </html>
