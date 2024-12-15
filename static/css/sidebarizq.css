@@ -1,0 +1,36 @@
+
+.extra-panel {
+    width: 25%;
+    background-color: #ffffff;
+    padding: 20px;
+    display: none; /* Oculto por defecto */
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    transition: border-color 0.3s ease;
+}
+
+/* Activar visualmente la tercera columna */
+.extra-panel.active {
+    display: block;
+    border-color: #81c784;
+}
+
+/* Botón de alternar el panel */
+.toggle-panel {
+    background-color: #388e3c;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Ocultar contenido inicialmente */
+.hidden-content {
+    display: none;
+}
+
+.extra-panel.active .hidden-content {
+    display: block;
+}

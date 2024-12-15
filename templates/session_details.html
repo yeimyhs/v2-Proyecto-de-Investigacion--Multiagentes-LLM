@@ -1,0 +1,17 @@
+<h4>Nombre: ${selectedSession.nombre}</h4>
+                        <p><strong>Descripción:</strong> ${selectedSession.descripcion}</p>
+                        <p><strong>Duración:</strong> ${selectedSession.duration}</p>
+
+                        <h5>Lista de Requerimientos:</h5>
+                        <ul>
+                            ${selectedSession.lista_requerimientos.map(req => `
+                                <li>${req.topic_d.name}</li>
+                            `).join('')}
+                        </ul>
+
+                        <h5>Técnicas recomendadas:</h5>
+                        <ul>
+                            ${selectedSession.tecnicas_recomendadas_a_usar_sesion.map(tech => `
+                                <li>${tech.technique_d.name}</li>
+                            `).join('')}
+                        </ul>

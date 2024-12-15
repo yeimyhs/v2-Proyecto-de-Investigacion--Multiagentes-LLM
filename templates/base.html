@@ -11,6 +11,7 @@
     
     <link rel="stylesheet" href="{% static 'css/chat.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="{% static 'css/botonmenulista.css' %}">
     <!-- Bloque para estilos específicos de cada página -->
     {% block extra_styles %}{% endblock %}
     
@@ -42,10 +43,25 @@
             </div>
         </div>
 
+
+        <div id="modal" class="hidden">
+            <div class="modal-card">
+                <h3>¿Cargar esta sesión?</h3>
+                <p id="session-details"></p>
+                <button id="confirm-btn">Cargar sesión</button>
+                <button id="cancel-btn">Cancelar</button>
+            </div>
+        </div>
+        <div id="overlay" class="hidden"></div>
+
+
+
         <!-- Contenido dinámico -->
+
         <div class="content">
             {% block content %}{% endblock %}
         </div>
+
     </div>
 </body>
 <script>
@@ -106,6 +122,145 @@
             }
         });
     });
+
+
+
+
+
+
+
+//BOTON MENU LIST-------------------
+//BOTON MENU LIST-------------------
+// Esperamos a que el contenido esté cargado
+document.addEventListener("DOMContentLoaded", () => {
+    // Elementos clave
+    const sessionList = document.getElementById("session-list");
+    const modal = document.getElementById("modal");
+    const overlay = document.getElementById("overlay");
+    const sessionDetails = document.getElementById("session-details");
+    const confirmBtn = document.getElementById("confirm-btn");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const content = document.querySelector(".content");
+
+    let selectedSession = null;
+
+    // URL dinámica
+    const endpoint = `/sesion/sessions/?user_id={{ user.id }}`;
+
+    // --- FUNCIONES GENÉRICAS ---
+    const fetchSessions = async (url) => {
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            console.error("Error al cargar las sesiones:", error);
+            return [];
+        }
+    };
+
+    const createListItem = (session) => {
+        const listItem = document.createElement("li");
+        listItem.dataset.sessionId = session.idsession;
+        listItem.dataset.sessionName = session.nombre;
+        listItem.dataset.sessionDesc = session.duration;
+
+        listItem.innerHTML = `
+            <span>${session.nombre}</span>
+            <button class="menu-btn">⋮</button>
+        `;
+        return listItem;
+    };
+
+    const showModal = (session) => {
+        selectedSession = session;
+
+        // Actualizar contenido dinámicamente
+        sessionDetails.innerHTML = `
+            <p><strong>Nombre:</strong> ${session.nombre}</p>
+            <p><strong>Descripción:</strong> ${session.descripcion}</p>
+        `;
+        modal.classList.remove("hidden");
+        overlay.classList.remove("hidden");
+    };
+
+    const hideModal = () => {
+        modal.classList.add("hidden");
+        overlay.classList.add("hidden");
+    };
+
+    const updateContent = (session) => {
+        content.innerHTML = `
+            <div class="session-details">
+                
+                <iframe src="/sesion/sesion_conf/${session.id}" width="100%" height="100%" style="border: none;"></iframe>
+                <p><strong>ID:</strong> ${session.id}</p>
+            </div>
+        `;
+    };
+
+    const assignMenuEvents = () => {
+        const menuBtns = document.querySelectorAll(".menu-btn");
+        menuBtns.forEach((btn) => {
+            btn.addEventListener("click", (event) => {
+                event.stopPropagation();
+                const parentItem = event.target.closest("li");
+                showModal({
+                    id: parentItem.dataset.sessionId,
+                    nombre: parentItem.dataset.sessionName,
+                    descripcion: parentItem.dataset.sessionDesc,
+                });
+            });
+        });
+    };
+
+    // --- EVENTOS ---
+    confirmBtn.addEventListener("click", () => {
+        if (selectedSession) {
+            updateContent(selectedSession);
+            hideModal();
+        }
+    });
+
+    cancelBtn.addEventListener("click", hideModal);
+    overlay.addEventListener("click", hideModal);
+
+    // --- CARGA INICIAL ---
+    fetchSessions(endpoint).then((sessions) => {
+        sessionList.innerHTML = "";
+        if (sessions.length === 0) {
+            sessionList.innerHTML = "<li>No hay sesiones disponibles.</li>";
+        } else {
+            sessions.forEach((session) => {
+                const listItem = createListItem(session);
+                sessionList.appendChild(listItem);
+            });
+            assignMenuEvents();
+        }
+    });
+
+
+
+
+
+
+
+
+    // --- CANCELAR O CERRAR EL MODAL ---
+    // Cancelar la acción
+    cancelBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+        overlay.classList.add("hidden");
+    });
+
+    // Cerrar modal al hacer clic en el overlay
+    overlay.addEventListener("click", () => {
+        modal.classList.add("hidden");
+        overlay.classList.add("hidden");
+    });
+});
+
+
 </script>
 
 </html>

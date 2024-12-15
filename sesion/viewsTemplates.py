@@ -21,7 +21,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from knox.models import AuthToken
 
 
-
+from django.shortcuts import render, get_object_or_404
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
@@ -54,3 +54,15 @@ def login_register_view(request):
         form = None
 
     return render(request, 'sesion/login_register.html', {'form': form})
+
+from django.views.decorators.clickjacking import xframe_options_exempt
+@xframe_options_exempt
+def session_detail_view(request, id):
+    # Buscar la sesión por id o devolver error 404 si no existe
+    session = get_object_or_404(Session, idsession=id)
+
+    # Serializar la sesión usando el serializer
+    serializer = SessionSerializer(session)
+
+    # Devolver los datos serializados a la plantilla
+    return render(request, 'sesion/session_detail.html', {'session': serializer.data})

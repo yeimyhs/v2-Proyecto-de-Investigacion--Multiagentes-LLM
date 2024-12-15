@@ -31,6 +31,7 @@ urlpatterns = [
     
     
     path('login_register_view/', viewsTemplates.login_register_view, name='register_log'),
+    path('sesion_conf/<int:id>/', viewsTemplates.session_detail_view, name='session_detail'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

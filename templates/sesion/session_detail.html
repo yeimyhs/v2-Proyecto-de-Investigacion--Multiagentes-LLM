@@ -1,0 +1,161 @@
+<!-- session_detail.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Chat con Gemini{% endblock %}</title>
+    {% load static %}
+    <!-- Estilos globales -->
+    <link rel="stylesheet" href="{% static 'css/sesionconfbase.css' %}">
+    {% block extra_styles %}{% endblock %}
+    
+</head>
+<body>
+<div class="session-container">
+    <h2>Detalles de la Sesión: {{ session.nombre }}</h2>
+
+    <p><strong>Duración de la Sesion:</strong> {{ session.duration }}</p>
+
+    <h3>Temas Requerimiento de la Sesion:</h3>
+    <p>Es importante indicar los temas que quiere que se tengan en cuenta durante la sesion.</p>
+    <ul>
+        {% for requerimiento in session.lista_requerimientos %}
+            <li>
+                <span>{{ requerimiento.topic_d.name }}</span>
+                <span class="hidden-state"> - {{ requerimiento.state }}</span>
+            </li>
+        {% empty %}
+            <p class="no-items">No hay requerimientos para esta sesión.</p>
+        {% endfor %}
+    </ul>
+    <button class="circle-btn" id="add-topic-btn">+</button>
+
+
+    <h3>Técnicas de aprendizaje: </h3>
+    <p>Técnicas de aprendizaje a desarrollar durante la sesion.</p>
+    <ul>
+        {% for tecnica in session.tecnicas_recomendadas_a_usar_sesion %}
+            <li>{{ tecnica.technique_d.name }}</li>
+        {% empty %}
+            <p class="no-items">No hay técnicas recomendadas para esta sesión.</p>
+        {% endfor %}
+    </ul>
+    <button class="circle-btn" id="add-technique-btn">+</button>
+
+
+
+
+
+
+
+
+    <!-- Overlay para las Tarjetillas -->
+    <div id="overlay" class="overlay">
+        <div class="card hidden" id="topic-card">
+            <h4>Agregar Tema</h4>
+            <form id="topic-form">
+                <label for="topic-name">Tema:</label>
+                <input type="text" id="topic-name" name="topic_name" required>
+                <button type="submit">Agregar</button>
+                <button type="button" id="close-topic-card">Cerrar</button>
+            </form>
+        </div>
+        <div class="card hidden" id="technique-card">
+            <h4>Agregar Técnica</h4>
+            <form id="technique-form">
+                <label for="technique-name">Técnica:</label>
+                <input type="text" id="technique-name" name="technique_name" required>
+                <button type="submit">Agregar</button>
+                <button type="button" id="close-technique-card">Cerrar</button>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Scripts -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const overlay = document.getElementById("overlay");
+
+        // Botones y Tarjetillas
+        const addTopicBtn = document.getElementById("add-topic-btn");
+        const addTechniqueBtn = document.getElementById("add-technique-btn");
+        const topicCard = document.getElementById("topic-card");
+        const techniqueCard = document.getElementById("technique-card");
+
+        const closeTopicCard = document.getElementById("close-topic-card");
+        const closeTechniqueCard = document.getElementById("close-technique-card");
+
+        // Abrir y cerrar tarjetillas
+        addTopicBtn.addEventListener("click", () => {
+            overlay.style.display = "flex";
+            topicCard.classList.remove("hidden");
+        });
+        addTechniqueBtn.addEventListener("click", () => {
+            overlay.style.display = "flex";
+            techniqueCard.classList.remove("hidden");
+        });
+        closeTopicCard.addEventListener("click", () => {
+            overlay.style.display = "none";
+            topicCard.classList.add("hidden");
+        });
+        closeTechniqueCard.addEventListener("click", () => {
+            overlay.style.display = "none";
+            techniqueCard.classList.add("hidden");
+        });
+
+        // Formularios dinámicos
+        const topicForm = document.getElementById("topic-form");
+        const techniqueForm = document.getElementById("technique-form");
+        const topicsList = document.getElementById("topics-list");
+        const techniquesList = document.getElementById("techniques-list");
+
+        topicForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const topicName = document.getElementById("topic-name").value;
+
+            // Hacer POST al servidor
+            fetch('/topics/api/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session: session.id, topic: topicName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Agregar a la lista si es exitoso
+                const li = document.createElement("li");
+                li.textContent = topicName;
+                topicsList.appendChild(li);
+
+                overlay.style.display = "none";
+                topicCard.classList.add("hidden");
+            })
+            .catch(error => console.error("Error al agregar tema:", error));
+        });
+
+        techniqueForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const techniqueName = document.getElementById("technique-name").value;
+
+            // Hacer POST al servidor
+            fetch('/techniques/api/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session: session.id , technique: techniqueName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Agregar a la lista si es exitoso
+                const li = document.createElement("li");
+                li.textContent = techniqueName;
+                techniquesList.appendChild(li);
+
+                overlay.style.display = "none";
+                techniqueCard.classList.add("hidden");
+            })
+            .catch(error => console.error("Error al agregar técnica:", error));
+        });
+    });
+</script>
+</body>
+</html>

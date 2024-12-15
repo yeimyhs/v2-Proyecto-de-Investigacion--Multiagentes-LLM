@@ -75,6 +75,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'aprendamosJuntos.urls'
 AUTH_USER_MODEL = 'sesion.CustomUser'
+# settings.py
+X_FRAME_OPTIONS = 'SAMEORIGIN'  # Permite que las páginas sean mostradas en iframes dentro del mismo dominio.
 
 
 TEMPLATES = [
