@@ -5,7 +5,7 @@ from sesion.models import Session
 class Message(models.Model):
     idmessage = models.AutoField(primary_key=True)
     sender = models.CharField(max_length=225)
-    date_hour = models.DateTimeField()
+    date_hour = models.DateTimeField(auto_now=True)
     content = models.TextField()
     new_knowledge = models.BooleanField()
     conversation = models.ForeignKey('Conversation', on_delete=models.CASCADE, null=True, blank=True)

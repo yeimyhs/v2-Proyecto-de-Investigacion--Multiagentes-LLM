@@ -17,6 +17,7 @@ router = SimpleRouter()
 
 urlpatterns = [
         path("chat/", chat_with_gemini, name="chat"),
+        path("def/", ejecutar_programa3),
         path("", viewsTemplates.chat_page, name="chat_page"), 
         #path("w", chat_pagew, name="chat_page"), 
 ]

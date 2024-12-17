@@ -127,6 +127,7 @@ def agente_3(mensaje_estudiante,lista_requerimientos, sugerencia_proxima_respues
     - La conversación debe mantenerse dentro del marco del tema de la sesión, según la lista proporcionada en `lista_requerimientos`{lista_requerimientos}.  
     - **No des soluciones directas.** Solo ofrece sugerencias, dudas, preguntas abiertas o puntos de vista que provoquen reflexión.
     - **Mantén el tono como un compañero amigable**, no como un experto. Puedes agregar alguna "razón personal" o una pequeña historia para dar más naturalidad a tus respuestas.
+    - **MAnten el mensaje fluido pero no muy extenso,CORTO, CONSISO, NO hagas el mensaje muy largo , toma una postura receptiva y siempre recuerda q TU eres el que debe aprender algo nuevo. **
 
     2. **Estrategia de técnicas de aprendizaje:**  
     - Elige entre las técnicas sugeridas en 'sugerencia_proxima_respuesta' {sugerencia_proxima_respuesta}, ajustándote al **nivel de profundidad** y al **perfil del estudiante**. Evita ser demasiado formal o complejo, pero asegúrate de no hacer que el estudiante se sienta incomprendido.
@@ -179,34 +180,60 @@ def get_session_requerimientos(session_id):
 # Bucle continuo
 def ejecutar_programa2():
     #-- session lista_requerimientos
-    session = Session.objects.all(id = 1)
-    lista_requerimientos = get_session_requerimientos(session)
-
     
-    print(lista_requerimientos
-          )
-    nivel_identificado_usuario = {
-        "nivel": "básico",
-        "descripción": "español nativo"
+    lista_requerimientos = {
+        "descripcion": "Es una lista de temas que se deben realizar durante la sesión...",
+        "lista": [{"calapata": True}, {"calacunca": False}, {"huishi": False}, {"lomiar": False}]
     }
-
+    
     descripcion_usuario_edad_nivel_educativo = {
         "usuario": "Yeimy Huanca",
         "edad": 15,
         "nivel_educativo": "4to de secundaria"
     }
-
-    dificultades_tecnicas_favorables_para_estudiante = {
-        "dificultades": ["no sabe formular muchas frases pero entiende significados"],
-        "tecnicas_favorables": ["comparación semántica"]
-    }
-    #-- session tecnicas_recomendadas_a_usar_sesion
+    
     tecnicas_recomendadas_a_usar_sesion = {
         "lista_de_tecnicas": ["ejemplos", "analogías"]
     }
     
     chat = []  # Historial de la conversación
+    
+    
+    session_id = 1
+    session = Session.objects.all(id = 1)
+    lista_requerimientos = get_session_requerimientos(session)
+    print("req=======", lista_requerimientos)
+    
+    session = Session.objects.get(idsession=session_id)
+    session_serializer = SessionSerializer(session)
+    userinfo = session_serializer.data.get('userinfo', [])
+    descripcion_usuario_edad_nivel_educativo = userinfo
+    print("desc user= ======", descripcion_usuario_edad_nivel_educativo)
+    
+    tecnicassesion = session_serializer.data.get('tecnicas_recomendadas_a_usar_sesion', [])
+    tecnicas_recomendadas_a_usar_sesion = tecnicassesion
+    print("tecn ses=======", tecnicas_recomendadas_a_usar_sesion)
 
+
+    conversaciones = Conversation.objects.filter(session=session)
+    mensajes = Message.objects.filter(conversation__in=conversaciones)
+    chat = [mensajes]
+    print("mnsaj=======", chat)
+    
+    nivel_identificado_usuario = {
+        "nivel": "básico",
+        "descripción": "español nativo"
+    }
+
+    
+
+    dificultades_tecnicas_favorables_para_estudiante = {
+        "dificultades": ["no sabe formular muchas frases pero entiende significados"],
+        "tecnicas_favorables": ["comparación semántica"]
+    }
+
+    
+    
     # Capturar mensaje inicial del estudiante
     mensaje_estudiante = input("Ingrese el mensaje inicial del estudiante: ")
 
@@ -252,6 +279,115 @@ def ejecutar_programa2():
 
 #--------------------------------------------------------------------------------------------------------
 
+def ejecutar_programa3(sesionid, mensaje):
+    #-- session lista_requerimientos
+    lista_requerimientos = {
+        "descripcion": "Es una lista de temas que se deben realizar durante la sesión...",
+        "lista": [{"calapata": True}, {"calacunca": False}, {"huishi": False}, {"lomiar": False}]
+    }
+    
+    descripcion_usuario_edad_nivel_educativo = {
+        "usuario": "Yeimy Huanca",
+        "edad": 15,
+        "nivel_educativo": "4to de secundaria"
+    }
+    
+    tecnicas_recomendadas_a_usar_sesion = {
+        "lista_de_tecnicas": ["ejemplos", "analogías"]
+    }
+    
+    chat = []  # Historial de la conversación
+    
+    
+    session_id = sesionid
+    session_id = 1
+    print("Ejecutaaaaaaaaaaaaaaaaaaa", session_id)
+    
+    session = Session.objects.filter(idsession = session_id)[:1] 
+
+    print(session)
+    lista_requerimientos = get_session_requerimientos(session)
+    print("req=======", lista_requerimientos)
+    
+    session = Session.objects.get(idsession=session_id)
+    session_serializer = SessionSerializer(session)
+    userinfo = session_serializer.data.get('userinfo', [])
+    descripcion_usuario_edad_nivel_educativo = userinfo
+    print("desc user= ======", descripcion_usuario_edad_nivel_educativo)
+    
+    tecnicassesion = session_serializer.data.get('tecnicas_recomendadas_a_usar_sesion', [])
+    tecnicas_recomendadas_a_usar_sesion = tecnicassesion
+    print("tecn ses=======", tecnicas_recomendadas_a_usar_sesion)
+
+
+    conversacion = Conversation.objects.get(session=session)
+    print("conversacion=======", conversacion.idconversation)
+    mensajes = Message.objects.filter(conversation=conversacion)
+    chat = [mensajes]
+    print("mnsaj=======", chat)
+    
+    nivel_identificado_usuario = {
+        "nivel": "básico",
+        "descripción": "español nativo"
+    }
+
+    
+
+    dificultades_tecnicas_favorables_para_estudiante = {
+        "dificultades": ["no sabe formular muchas frases pero entiende significados"],
+        "tecnicas_favorables": ["comparación semántica"]
+    }
+
+    
+    
+    # Capturar mensaje inicial del estudiante
+    mensaje_estudiante = mensaje
+    nuevo_mensaje = Message(
+            sender="Usuario", # Establece la fecha y hora actual
+            content=mensaje,
+            new_knowledge=True,
+            conversation=conversacion
+        )
+    nuevo_mensaje.save()
+
+
+
+
+    # Paso 1: Agente 1 genera sugerencias
+    temas_sugeridos = agente_1(lista_requerimientos, mensaje_estudiante)
+
+    # Paso 2: Agente 2 genera la respuesta
+    respuesta_base = agente_2(
+        nivel_identificado_usuario,
+        descripcion_usuario_edad_nivel_educativo,
+        dificultades_tecnicas_favorables_para_estudiante,
+        tecnicas_recomendadas_a_usar_sesion,
+        temas_sugeridos
+    )
+
+    # Agregar la respuesta del agente 2 al historial
+    chat.append({"role": "assistant", "content": respuesta_base})
+
+    # Paso 3: Agente 3 genera la respuesta contextualizada
+    respuesta_contextualizada = agente_3(
+        mensaje_estudiante, 
+        lista_requerimientos, 
+        respuesta_base, 
+        chat
+    )
+
+    # Agregar la respuesta del agente 3 al historial
+    chat.append({"role": "assistant", "content": respuesta_contextualizada})
+    nuevo_mensaje = Message(
+            sender="Agente", # Establece la fecha y hora actual
+            content=respuesta_contextualizada,
+            new_knowledge=False,
+            conversation=conversacion
+        )
+    nuevo_mensaje.save()
+
+    return (respuesta_contextualizada)
+
 
 
 
@@ -263,15 +399,21 @@ def chat_with_gemini(request):
         data = json.loads(request.body)
         # Obtener el mensaje del usu= json.loads(request.body)
         user_message = data.get("message", "")
+        sesionid = data.get("sessionid", None)
+        if not sesionid:
+                return JsonResponse({'error': 'El ID de la sesión no fue proporcionado'}, status=400)
+
         print(user_message)
         if not user_message:
             return JsonResponse({"error": "No se envió un mensaje"}, status=400)
         
         # Generar respuesta utilizando Gemini
         try:
-            response = model.complete(prompt=user_message)
+            print("sesionid",sesionid)
+            
+            response = ejecutar_programa3(sesionid, user_message)
             print(response)
-            return JsonResponse({"response": response.text})
+            return JsonResponse({"response": str(response)})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     else:

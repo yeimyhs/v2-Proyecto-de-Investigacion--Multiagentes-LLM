@@ -54,6 +54,8 @@ class SessionSerializer(serializers.ModelSerializer):
         fields = '__all__'
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['userinfo']  = CustomUserSerializer(source= 'user' , read_only=True)  # Assuming CustomUser model has a serializer.
+        
         #self.fields['technique_d'] = LearningTechniqueSerializer(source='technique', read_only=True)
 
     def get_tecnicas_recomendadas_a_usar_sesion(self, obj):
